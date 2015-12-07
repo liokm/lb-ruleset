@@ -6,11 +6,12 @@ module.exports = {
   entry: [
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
-    './index'
+    './src/index'
   ],
   output: {
-    path: __dirname,
-    filename: 'bundle.js'
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js',
+    publicPath: '/static/'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -21,7 +22,7 @@ module.exports = {
       test: /\.js$/,
       loaders: ['react-hot', 'babel'],
       exclude: /node_modules/,
-      include: __dirname
+      include: path.join(__dirname, 'src')
     }]
   }
 };
