@@ -2,22 +2,27 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Counter from '../components/Counter';
+import DayView from '../components/Graph';
 import * as CounterActions from '../actions/CounterActions';
 
-class CounterApp extends Component {
+class App extends Component {
   render() {
-    const { counter, dispatch } = this.props;
+    const { counter, dispatch, browser } = this.props;
     return (
-      <Counter counter={counter}
-               {...bindActionCreators(CounterActions, dispatch)} />
+      <div>
+        <Counter counter={counter}
+          {...bindActionCreators(CounterActions, dispatch)} />
+        <DayView browser={browser} />
+      </div>
     );
   }
 }
 
 function select(state) {
   return {
-    counter: state.counter
+    counter: state.counter,
+    browser: state.browser
   };
 }
 
-export default connect(select)(CounterApp);
+export default connect(select)(App);
