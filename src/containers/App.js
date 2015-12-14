@@ -19,13 +19,12 @@ class Panel extends Component {
 class App extends Component {
   render() {
     const { dispatch, counter, browser, panel } = this.props;
+    const panelActions = bindActionCreators(PanelActions, dispatch);
     return (
-      <div>
+      <div style={{ width: 880 }}>
         <Counter counter={counter}
           {...bindActionCreators(CounterActions, dispatch)} />
-        <Panel
-          panel={panel}
-          {...bindActionCreators(PanelActions, dispatch)} />
+        <Panel panel={panel} {...panelActions} />
         {
           /* TODO: transform timepoint to duration; show duration per DayView;
             in add mode: add extra entry to current one and show it (
@@ -36,9 +35,9 @@ class App extends Component {
            */
           Array.from(Array(7)).map((x, i) => {
             return (
-              <div>
+              <div key={i}>
                 <h4>Day {i+1}</h4>
-                <DayView key={i} browser={browser} />
+                <DayView browser={browser} />
               </div>
             )
           })
