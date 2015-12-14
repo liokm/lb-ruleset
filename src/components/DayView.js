@@ -47,7 +47,7 @@ export default class DayView extends Component {
   }
 
   render() {
-    const { vLabels } = this.props;
+    const { vLabels, panelActions, panel } = this.props;
     const block = this.getBlock();
 
     return (
@@ -57,7 +57,7 @@ export default class DayView extends Component {
         </div>
         <div style={{flexGrow: 1, height: block * (Graph.V + 1) + 1, overflow: 'hidden'}} ref="wrapper">
           {block
-            ? <Graph block={block} />
+            ? <Graph block={block} panel={panel} {...panelActions}/>
             : null
           }
         </div>

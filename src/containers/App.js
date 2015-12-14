@@ -10,9 +10,7 @@ class Panel extends Component {
   render() {
     const { panel, enableAddMode } = this.props;
     return (
-      <div>
-        <button onClick={enableAddMode}>Add</button>
-      </div>
+      <button onClick={enableAddMode}>Add</button>
     );
   }
 }
@@ -37,7 +35,7 @@ class App extends Component {
             return (
               <div key={i}>
                 <h4>Day {i+1}</h4>
-                <DayView browser={browser} />
+                <DayView panel={panel} browser={browser} panelActions={panelActions} />
               </div>
             )
           })
