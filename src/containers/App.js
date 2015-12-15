@@ -19,7 +19,7 @@ class App extends Component {
     const { dispatch, counter, browser, panel } = this.props;
     const panelActions = bindActionCreators(PanelActions, dispatch);
     return (
-      <div style={{ width: 880 }}>
+      <div>
         <Counter counter={counter}
           {...bindActionCreators(CounterActions, dispatch)} />
         <Panel panel={panel} {...panelActions} />

@@ -2,37 +2,26 @@ import React, { Component, PropTypes } from 'react';
 
 // Graph
 export default class Graph extends Component {
-  static H = 24
-  static V = 4
   static propTypes = {
-    block: PropTypes.number.isRequired
-    // TODO
-    // hLabels
+    block: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
+    // TODO hLabels
   }
 
   static defaultProps = {
     hLabels: Array.from(Array(25), (x, k) => k)
   }
 
-  getSize() {
-    // In order to keep us from anti-alias lines, always draw on integer grid
-    const { block } = this.props;
-    return {
-      width: block * Graph.H + 1,
-      height: block * Graph.V + 1
-    };
-  }
-
   getPos(e) {
-    const { block } = this.props;
-    const { width, height } = this.getSize();
+    const { block, width, height } = this.props;
     const { left, top } = e.currentTarget.getBoundingClientRect();
     const x = Math.floor(e.clientX - left);
     const y = Math.floor(e.clientY - top);
     return {
       x,
       y,
-      // XXX precision issue
+      // XXX precision issue?
       xRatio: x / width,
       yRatio: y / height,
       // TODO snap to grid or integer value
@@ -45,7 +34,7 @@ export default class Graph extends Component {
   handleMouseMove(e) {
     const { mouseMoved } = this.props;
     // TODO debounce here or in panelAction
-    mouseMoved({...this.getSize(), ...this.getPos(e)});
+    // mouseMoved({...this.getSize(), ...this.getPos(e)});
   }
 
   handleClick(e) {
@@ -61,8 +50,7 @@ export default class Graph extends Component {
   }
 
   render() {
-    const { block, hLabels, panel } = this.props;
-    const { width, height } = this.getSize();
+    const { block, width, height, hLabels, panel } = this.props;
     let path;
     if (panel.has('line')) {
       const [{ xRatio, v }] = panel.get('line');
@@ -81,7 +69,7 @@ export default class Graph extends Component {
             </pattern>
           </defs>
           <rect width="100%" height="50%" fill="url(#grid)" />
-          <rect width="100%" height="50%" fill="url(#grid)" transform={`translate(0, ${block * Graph.V + 1}) scale(1, -1)`} />
+          <rect width="100%" height="50%" fill="url(#grid)" transform={`translate(0, ${height}) scale(1, -1)`} />
           {
             path
             ? <path d={path} stroke="red" strokeWidth="2" fill="none" />
@@ -94,7 +82,7 @@ export default class Graph extends Component {
             : null
           }
         </svg>
-        {hLabels.map((x, i) => <text width={block} x={block * (i + .5)} y={block * (Graph.V + .9)} key={i} style={{textAnchor: 'middle', fill: 'grey', fontSize: block * .7}}>{x}</text>)}
+        {hLabels.map((x, i) => <text width={block} x={block * (i + .5)} y={height + block * 0.9} key={i} style={{textAnchor: 'middle', fill: 'grey', fontSize: block * .7}}>{x}</text>)}
       </svg>
     );
   }
