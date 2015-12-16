@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import moment from 'moment';
 
 // Graph
 export default class Graph extends Component {
@@ -10,7 +11,13 @@ export default class Graph extends Component {
   }
 
   static defaultProps = {
-    hLabels: Array.from(Array(25), (x, k) => k)
+    hLabels: Array.from(Array(25), (x, k) => k),
+    seq: [
+      {type: 3, duration: moment.duration(1.5, 'h')},
+      {type: 2, duration: moment.duration(2, 'h')},
+      {type: 1, duration: moment.duration(2, 'h')},
+      {type: 0, duration: moment.duration(2, 'h')}
+    ]
   }
 
   getPos(e) {
@@ -30,7 +37,6 @@ export default class Graph extends Component {
     };
   }
 
-
   handleMouseMove(e) {
     const { mouseMoved } = this.props;
     // TODO debounce here or in panelAction
@@ -49,20 +55,43 @@ export default class Graph extends Component {
     this.setState({ highlight: false });
   }
 
+  getPath(seq) {
+    // duration * width / moment.duration(1, 'day')
+    const ret = ['M', 0];
+    const { block, width } = this.props;
+    const day = moment.duration(1, 'day');
+    seq = seq.map(({type, duration}) => {
+      return {
+        type,
+        duration: duration * width / day
+      }
+    });
+    seq.forEach(({ type, duration }, i) => {
+      if (i) {
+        ret.push('V');
+      }
+      ret.push((type + 0.5) * block, 'h', duration);
+    })
+    console.log( ret.join(' '));
+    return ret.join(' ');
+  }
+
   render() {
-    const { block, width, height, hLabels, panel } = this.props;
-    let path;
-    if (panel.has('line')) {
-      const [{ xRatio, v }] = panel.get('line');
-      path = `M 0 ${block * (v + 0.5)} h ${xRatio * width}`;
-    }
+    const { block, width, height, hLabels, panel, seq } = this.props;
+    //
+    // let path;
+    // if (panel.has('line')) {
+    //   const [{ xRatio, v }] = panel.get('line');
+    //   path = `M 0 ${block * (v + 0.5)} h ${xRatio * width}`;
+    // }
     return (
       <svg width={width + block} height={height + block}>
-        <svg ref="svg" x={block / 2} width={width} height={height}
-          onMouseEnter={ e => this.handleMouseEnter(e) }
+        <svg x={block / 2} width={width} height={height}
           onMouseLeave={ e => this.handleMouseLeave(e) }
           onClick={ e => this.handleClick(e) }
-          onMouseMove={ e => this.handleMouseMove(e) }>
+          onMouseMove={ e => this.handleMouseMove(e) }
+          onMouseEnter={ e => this.handleMouseEnter(e) }
+          >
           <defs>
             <pattern id="grid" width={ block } height={ block } patternUnits="userSpaceOnUse">
               <path d={`M ${block} 0 L 0 0 0 ${block} M ${block/4} 0 v ${block/4} M ${block/2} 0 v ${block/2} M ${3*block/4} 0 v ${block/4}`} fill="none" stroke="gray" strokeWidth="0.5" />
@@ -71,8 +100,9 @@ export default class Graph extends Component {
           <rect width="100%" height="50%" fill="url(#grid)" />
           <rect width="100%" height="50%" fill="url(#grid)" transform={`translate(0, ${height}) scale(1, -1)`} />
           {
-            path
-            ? <path d={path} stroke="red" strokeWidth="2" fill="none" />
+            // draw what ever we got
+            seq
+            ? <path d={this.getPath(seq)} stroke="blue" strokeWidth="1" fill="none" />
             : null
           }
           {

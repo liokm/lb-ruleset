@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import Graph from './Graph';
-import * as dummy from 'moment-duration-format';
 import moment from 'moment';
 
 // TODO Ruleset has its vLabels
@@ -39,7 +38,8 @@ export default class DayView extends Component {
   }
 
   // Calculate the size of grid block
-  // In order to prevent anti-alias bluring, always draw on integer grid
+  // 1. In order to prevent anti-alias bluring, always draw on integer grid
+  // 2. width/height are passed into Graph without calculating them inside
   getSize() {
     const { width = 0 } = this.state || {};
     const block = Math.max(0, Math.floor((width - 1) / (H + 1)));
@@ -57,12 +57,68 @@ export default class DayView extends Component {
     );
   }
 
+  // TODO immutable
+  removeZero(seq) {
+    return seq.filter(({type, duration}) => duration != 0);
+  }
+
+  mergeConsecutive(seq) {
+    const ret = [];
+    for (let {type, duration} of seq) {
+      if (ret.length && ret[ret.length - 1].type == type) {
+        ret[ret.length - 1].duration.add(duration);
+      } else {
+        ret.push({type, duration});
+      }
+    }
+    return ret;
+  }
+
+  // Split the seq by day (of their duration sums)
+  splitByDay(seq) {
+    const day = moment.duration(1, 'day');
+    let cur = [];
+    const ret = [cur];
+    // sum of the cur entry
+    // const duration = moment.duration();
+    for (let {type, duration: d} of seq) {
+      const curDuration = cur.reduce((x, {duration}) => x.add(duration) , moment.duration());
+      if (curDuration + d > day) {
+        const delta = day - curDuration;
+        cur.push({type, duration: moment.duration(delta)});
+        const remain = d - delta;
+        ret.push(...Array.from(Array(Math.floor(remain / day)), () => [{type, duration: moment.duration(1, 'day')}]));
+        cur = [];
+        ret.push(cur);
+        if (remain % day) {
+          cur.push({type, duration: moment.duration(remain % day)});
+        }
+      } else {
+        cur.push({type, d});
+      }
+    }
+    return ret;
+  }
+
   render() {
     const { vLabels, panelActions, panel } = this.props;
     const { block, width, height } = this.getSize();
     // TODO
-    const seq = [];
+    const seq = [
+      {type: 1, duration: moment.duration(1, 'week')}
+    ];
 
+    console.log(this.splitByDay(seq));
+    // const foo = [
+    //   {type: 1, duration: moment.duration(2, 'h')},
+    //   {type: 2, duration: moment.duration(1, 'm')},
+    //   {type: 1, duration: moment.duration(1, 'm')},
+    //   {type: 1, duration: moment.duration(30, 's')}
+    // ]
+    // console.log(this.mergeSeq(foo));
+
+    // durations are splited to different part
+    // Instead of passing in splitted seq, simply pass in the svg path string
     return (
       <div style={{display: 'flex'}}>
         {/* Left part: vLabels */}

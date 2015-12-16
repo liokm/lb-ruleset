@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import * as dummy from 'moment-duration-format';
 import Counter from '../components/Counter';
 import DayView from '../components/DayView';
 import * as CounterActions from '../actions/CounterActions';
