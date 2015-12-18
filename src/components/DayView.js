@@ -101,14 +101,15 @@ export default class DayView extends Component {
   }
 
   render() {
-    const { vLabels, panelActions, panel } = this.props;
+    const { vLabels, panelActions, panel, seq } = this.props;
+    // console.log(seq);
     const { block, width, height } = this.getSize();
     // TODO
-    const seq = [
-      {type: 1, duration: moment.duration(1, 'week')}
-    ];
+    // const seq = [
+    //   {type: 1, duration: moment.duration(1, 'week')}
+    // ];
 
-    console.log(this.splitByDay(seq));
+    // console.log(this.splitByDay(seq));
     // const foo = [
     //   {type: 1, duration: moment.duration(2, 'h')},
     //   {type: 2, duration: moment.duration(1, 'm')},
@@ -120,26 +121,24 @@ export default class DayView extends Component {
     // durations are splited to different part
     // Instead of passing in splitted seq, simply pass in the svg path string
     return (
-      <div style={{display: 'flex'}}>
+      <div style={{display: 'flex', marginBottom: '1em'}}>
         {/* Left part: vLabels */}
-        <div style={{display: 'flex', flexDirection: 'column', paddingBottom: block}}>
-          {vLabels.map((x, i) => <div key={i} style={{flexGrow: 1, flexBasis: 0}}>{x}</div> )}
+        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
+          {vLabels.map((x, i) => <div key={i} style={{flexGrow: 1, flexBasis: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x}</div> )}
         </div>
         {/* Middle part: Graph */}
-        <div style={{flexGrow: 1, height: height + block, overflow: 'hidden'}} ref="wrapper">
+        <div style={{flexGrow: 1, overflow: 'hidden', textAlign: 'center'}} ref="wrapper">
           {
             block
-            ? <Graph block={block} width={width} height={height} panel={panel} {...panelActions}/>
+            ? <Graph block={block} width={width} height={height} panel={panel} seq={seq} {...panelActions}/>
             : null
           }
         </div>
         {/* Right part: accumulated timer */}
-        <div style={{display: 'flex', flexDirection: 'column', paddingBottom: block}}>
+        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
           {
-            block
-            // x.format('s hh:mm:ss') is a quick hackaround...
-            ? this.getAccumulatedTime(seq).map((x, i) => <div key={i} style={{flexGrow: 1}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
-            : [1, 2, 3, 4].map((x, i) => <div key={i} style={{flexGrow: 1}}>00:00:00</div>)
+            // console.log('inside', seq),
+            this.getAccumulatedTime(seq).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
           }
         </div>
       </div>
