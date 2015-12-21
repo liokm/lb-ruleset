@@ -1,12 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import Graph from './Graph';
+import Graph, { H } from './Graph';
 import moment from 'moment';
+import { MODE } from '../constants/Panel';
 
 // TODO Ruleset has its vLabels
 // Component that lifts the heavy of calculating block size of grid
 //  and drawing day view
-const H = 24;
-const V = 4;
 export default class DayView extends Component {
   static defaultProps = {
     vLabels: [ 'OFF', 'SB', 'D', 'ON' ]
@@ -37,19 +36,26 @@ export default class DayView extends Component {
     }
   }
 
+  // Dealing with mouse moving, especially in ADD mode
+  handleMouseMove(e) {
+    // When mouse moving, c
+    const { mode } = this.props;
+    if (mode == MODE.ADD) {
+
+
+    }
+
+  }
+
   // Calculate the size of grid block
   // 1. In order to prevent anti-alias bluring, always draw on integer grid
   // 2. width/height are passed into Graph without calculating them inside
-  getSize() {
+  getBlock() {
     const { width = 0 } = this.state || {};
-    const block = Math.max(0, Math.floor((width - 1) / (H + 1)));
-    return {
-      block,
-      width: block * H + 1,
-      height: block * V + 1
-    }
+    return Math.max(0, Math.floor((width - 1) / (H + 1)));
   }
 
+  // For the right-side column, calculate the sum time
   getAccumulatedTime(seq) {
     return seq.reduce(
       (prev, {type, duration}) => (prev[type].add(duration), prev),
@@ -74,63 +80,24 @@ export default class DayView extends Component {
     return ret;
   }
 
-  // Split the seq by day (of their duration sums)
-  splitByDay(seq) {
-    const day = moment.duration(1, 'day');
-    let cur = [];
-    const ret = [cur];
-    // sum of the cur entry
-    // const duration = moment.duration();
-    for (let {type, duration: d} of seq) {
-      const curDuration = cur.reduce((x, {duration}) => x.add(duration) , moment.duration());
-      if (curDuration + d > day) {
-        const delta = day - curDuration;
-        cur.push({type, duration: moment.duration(delta)});
-        const remain = d - delta;
-        ret.push(...Array.from(Array(Math.floor(remain / day)), () => [{type, duration: moment.duration(1, 'day')}]));
-        cur = [];
-        ret.push(cur);
-        if (remain % day) {
-          cur.push({type, duration: moment.duration(remain % day)});
-        }
-      } else {
-        cur.push({type, d});
-      }
-    }
-    return ret;
-  }
-
+  // TODO Simply pass the svg path string to <Graph> for a quick performance boost?
   render() {
-    const { vLabels, panelActions, panel, seq } = this.props;
-    // console.log(seq);
-    const { block, width, height } = this.getSize();
-    // TODO
-    // const seq = [
-    //   {type: 1, duration: moment.duration(1, 'week')}
-    // ];
-
-    // console.log(this.splitByDay(seq));
-    // const foo = [
-    //   {type: 1, duration: moment.duration(2, 'h')},
-    //   {type: 2, duration: moment.duration(1, 'm')},
-    //   {type: 1, duration: moment.duration(1, 'm')},
-    //   {type: 1, duration: moment.duration(30, 's')}
-    // ]
-    // console.log(this.mergeSeq(foo));
-
-    // durations are splited to different part
-    // Instead of passing in splitted seq, simply pass in the svg path string
+    const { vLabels, panelActions, panel, entries, idx } = this.props;
+    const block = this.getBlock();
+    // TODO Block is calculated for full column size, thus the fontSize here
+    //  can much possibly reduce the width of left and right columns.
+    const fontSize = block ? {fontSize: `${block * .9}px`} : {};
     return (
-      <div style={{display: 'flex', marginBottom: '1em'}}>
+      <div style={{display: 'flex', marginBottom: '1em', ...fontSize}}>
         {/* Left part: vLabels */}
-        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
+        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block, textAlign: 'center'}}>
           {vLabels.map((x, i) => <div key={i} style={{flexGrow: 1, flexBasis: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x}</div> )}
         </div>
         {/* Middle part: Graph */}
         <div style={{flexGrow: 1, overflow: 'hidden', textAlign: 'center'}} ref="wrapper">
           {
             block
-            ? <Graph block={block} width={width} height={height} panel={panel} seq={seq} {...panelActions}/>
+            ? <Graph block={block} seq={entries} idx={idx} {...panelActions}/>
             : null
           }
         </div>
@@ -138,7 +105,7 @@ export default class DayView extends Component {
         <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
           {
             // console.log('inside', seq),
-            this.getAccumulatedTime(seq).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
+            this.getAccumulatedTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
           }
         </div>
       </div>

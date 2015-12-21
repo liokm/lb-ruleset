@@ -1,27 +1,31 @@
 import React, { Component, PropTypes } from 'react';
 import moment from 'moment';
 
+export const H = 24;
+export const V = 4;
 // Graph
 export default class Graph extends Component {
   static propTypes = {
     block: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired
     // TODO hLabels
   }
 
   static defaultProps = {
-    hLabels: Array.from(Array(25), (x, k) => k),
-    seq: [
-      {type: 3, duration: moment.duration(1.5, 'h')},
-      {type: 2, duration: moment.duration(2, 'h')},
-      {type: 1, duration: moment.duration(2, 'h')},
-      {type: 0, duration: moment.duration(2, 'h')}
-    ]
+    hLabels: Array.from(Array(H + 1), (x, k) => k),
+    seq: []
+  }
+
+  getSize() {
+    const { block } = this.props;
+    return {
+      block,
+      width: block * H + 1,
+      height: block * V + 1
+    };
   }
 
   getPos(e) {
-    const { block, width, height } = this.props;
+    const { block, width, height } = this.getSize();
     const { left, top } = e.currentTarget.getBoundingClientRect();
     const x = Math.floor(e.clientX - left);
     const y = Math.floor(e.clientY - top);
@@ -41,56 +45,42 @@ export default class Graph extends Component {
     const { mouseMoved } = this.props;
     // TODO debounce here or in panelAction
     // mouseMoved({...this.getSize(), ...this.getPos(e)});
+    // Ctrl/Alt key for snap
   }
 
   handleClick(e) {
     console.log(this.getPos(e));
   }
 
-  handleMouseEnter() {
-    this.setState({ highlight: true });
-  }
-
-  handleMouseLeave() {
-    this.setState({ highlight: false });
-  }
-
+  // Get d for <path d={d}> for an entry seq
   getPath(seq) {
-    // duration * width / moment.duration(1, 'day')
     const ret = ['M', 0];
-    const { block, width } = this.props;
+    const { block, width } = this.getSize();
     const day = moment.duration(1, 'day');
-    seq = seq.map(({type, duration}) => {
-      return {
-        type,
-        duration: duration * width / day
-      }
-    });
-    seq.forEach(({ type, duration }, i) => {
-      if (i) {
+    seq.forEach(({ type, duration }, idx) => {
+      // Vertically move to target line, except the first move
+      if (idx) {
         ret.push('V');
       }
-      ret.push((type + 0.5) * block, 'h', duration);
-    })
-    console.log( ret.join(' '));
+      ret.push(
+        // type is index-based already
+        (type + 0.5) * block,
+        'h',
+        duration * width / day // x / width == duration / day
+      );
+    });
     return ret.join(' ');
   }
 
   render() {
-    const { block, width, height, hLabels, panel, seq } = this.props;
-    //
-    // let path;
-    // if (panel.has('line')) {
-    //   const [{ xRatio, v }] = panel.get('line');
-    //   path = `M 0 ${block * (v + 0.5)} h ${xRatio * width}`;
-    // }
+    const { hLabels, panel, seq } = this.props;
+    const { block, width, height } = this.getSize();
+
     return (
       <svg width={width + block} height={height + block}>
         <svg x={block / 2} width={width} height={height}
-          onMouseLeave={ e => this.handleMouseLeave(e) }
           onClick={ e => this.handleClick(e) }
           onMouseMove={ e => this.handleMouseMove(e) }
-          onMouseEnter={ e => this.handleMouseEnter(e) }
           >
           <defs>
             <pattern id="grid" width={ block } height={ block } patternUnits="userSpaceOnUse">
@@ -100,19 +90,13 @@ export default class Graph extends Component {
           <rect width="100%" height="50%" fill="url(#grid)" />
           <rect width="100%" height="50%" fill="url(#grid)" transform={`translate(0, ${height}) scale(1, -1)`} />
           {
-            // draw what ever we got
+            // draw whatever we got
             seq
             ? <path d={this.getPath(seq)} stroke="blue" strokeWidth="1" fill="none" />
             : null
           }
-          {
-            // highlight border when real Graph is hovered
-            this.state && this.state.highlight
-            ? <rect x="1" y="0" width={width - 1} height="100%" stroke="purple" strokeWidth="1" fill="none" />
-            : null
-          }
         </svg>
-        {hLabels.map((x, i) => <text width={block} x={block * (i + .5)} y={height + block * 0.9} key={i} style={{textAnchor: 'middle', fill: 'grey', fontSize: block * .7}}>{x}</text>)}
+        {hLabels.map((x, i) => <text width={block} x={block * (i + .5)} y={height + block * 0.9} key={i} style={{textAnchor: 'middle', fill: 'grey', fontSize: block * 0.75}}>{x}</text>)}
       </svg>
     );
   }

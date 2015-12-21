@@ -30,3 +30,15 @@ export function mouseMoved(data) {
     }
   };
 }
+
+export function handleKeyDown({ keyCode }) {
+  return (dispatch, getState) => {
+      const { panel } = getState();
+      // ESC
+      if (panel.get('mode') == MODE.ADD && keyCode == 27) {
+        dispatch(enableViewMode());
+      } else if (false) {
+
+      }
+  };
+}
