@@ -8,12 +8,12 @@ const initial = Map({
 
 export default function panel(state=initial, action) {
   switch (action.type) {
-    case CHANGE_MODE:
-      return state.set('mode', action.mode);
-    case ADD_ENTRY: {
-      const { xRatio, yBlock } = action.payload;
-      return state.set('line', [action.payload]);
-    }
+    // case CHANGE_MODE:
+    //   return state.set('mode', action.mode);
+    // case ADD_ENTRY: {
+    //   const { xRatio, yBlock } = action.payload;
+    //   return state.set('line', [action.payload]);
+    // }
     default:
       return state;
   }

@@ -42,7 +42,10 @@ export default class Graph extends Component {
   }
 
   handleMouseMove(e) {
-    const { mouseMoved } = this.props;
+    const { actions, mouseMoved, idx } = this.props;
+    actions.mouseMoved( () => this.getPos(e), idx );
+    //
+    // mouseMoved(e, )
     // TODO debounce here or in panelAction
     // mouseMoved({...this.getSize(), ...this.getPos(e)});
     // Ctrl/Alt key for snap

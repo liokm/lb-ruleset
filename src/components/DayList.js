@@ -43,7 +43,7 @@ export default class DayList extends Component {
 
   render() {
     // Use global entries and editingEntries
-    const { entries, editingEntries, mode, browser } = this.props;
+    const { entries, editingEntries, mode, browser, ruleset, actions } = this.props;
     // TODO: Show violations for entries / editingEntries differently
     const splittedEntries = this.splitByDay(entries);
     const splittedEditingEntries = this.splitByDay(editingEntries);
@@ -73,6 +73,9 @@ export default class DayList extends Component {
             editingEntries={splittedEditingEntries[i]}
             key={i}
             idx={i}
+            actions={actions}
+            ruleset={ruleset}
+            vLabels={ruleset.types}
             browser={browser}
             />;
         })

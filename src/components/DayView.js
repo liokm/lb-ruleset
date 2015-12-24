@@ -3,23 +3,9 @@ import Graph, { H } from './Graph';
 import moment from 'moment';
 import { MODE } from '../constants/Panel';
 
-// TODO Ruleset has its vLabels
 // Component that lifts the heavy of calculating block size of grid
 //  and drawing day view
 export default class DayView extends Component {
-  static defaultProps = {
-    vLabels: [ 'OFF', 'SB', 'D', 'ON' ]
-    // vLabels: [
-    //   '1. OFF DUTY',
-    //   '2. SLEEPER BERTH',
-    //   '3. DRIVING',
-    //   <div>
-    //     4. ON DUTY
-    //     <br /><small>(NOT DRIVING)</small>
-    //   </div>
-    // ]
-  }
-
   handleResize() {
     this.setState({width: this.refs.wrapper.getBoundingClientRect().width});
   }
@@ -82,7 +68,7 @@ export default class DayView extends Component {
 
   // TODO Simply pass the svg path string to <Graph> for a quick performance boost?
   render() {
-    const { vLabels, panelActions, panel, entries, idx } = this.props;
+    const { vLabels, panelActions, panel, entries, idx, actions } = this.props;
     const block = this.getBlock();
     // TODO Block is calculated for full column size, thus the fontSize here
     //  can much possibly reduce the width of left and right columns.
@@ -97,7 +83,7 @@ export default class DayView extends Component {
         <div style={{flexGrow: 1, overflow: 'hidden', textAlign: 'center'}} ref="wrapper">
           {
             block
-            ? <Graph block={block} seq={entries} idx={idx} {...panelActions}/>
+            ? <Graph block={block} seq={entries} idx={idx} actions={actions} {...panelActions}/>
             : null
           }
         </div>
