@@ -1,7 +1,7 @@
+import moment from 'moment';
 import { combineReducers } from 'redux';
 import { responsiveStateReducer } from 'redux-responsive';
-import moment from 'moment';
-import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE } from '../constants';
+import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY } from '../constants';
 import rulesets from '../rulesets';
 
 
@@ -14,7 +14,7 @@ function mode(state=MODE.VIEW, action) {
   }
 }
 
-function rulesetName(state=rulesets[0].getName(), action) {
+function rulesetName(state=rulesets.get().getName(), action) {
   switch (action.type) {
     case CHANGE_RULESET:
       return action.name;
@@ -29,6 +29,8 @@ const initialEntries = [
 
 function entries(state=initialEntries, action) {
   switch (action.type) {
+    case CHANGE_ENTRY:
+      return [action.payload];
     default:
       return state;
   }

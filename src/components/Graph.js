@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import moment from 'moment';
+import lodash from 'lodash';
 
 export const H = 24;
 export const V = 4;
@@ -13,6 +14,11 @@ export default class Graph extends Component {
   static defaultProps = {
     hLabels: Array.from(Array(H + 1), (x, k) => k),
     seq: []
+  }
+
+  constructor() {
+    super();
+    this.handleMouseMove = lodash.throttle(this.handleMouseMove, 200);
   }
 
   getSize() {
@@ -42,8 +48,12 @@ export default class Graph extends Component {
   }
 
   handleMouseMove(e) {
-    const { actions, mouseMoved, idx } = this.props;
-    actions.mouseMoved( () => this.getPos(e), idx );
+  // throttle the func here
+    //e.persist();
+    const { actions, idx } = this.props;
+    const { xRatio, v } = this.getPos(e);
+    actions.mouseMoved({type: v, duration: moment.duration(idx, 'day').add(xRatio * 24, 'hour')});
+    //actions.mouseMoved( () => this.getPos(e), idx );
     //
     // mouseMoved(e, )
     // TODO debounce here or in panelAction
@@ -83,7 +93,7 @@ export default class Graph extends Component {
       <svg width={width + block} height={height + block}>
         <svg x={block / 2} width={width} height={height}
           onClick={ e => this.handleClick(e) }
-          onMouseMove={ e => this.handleMouseMove(e) }
+          onMouseMove={ ({clientX, clientY, currentTarget}) => this.handleMouseMove({clientX, clientY, currentTarget}) }
           >
           <defs>
             <pattern id="grid" width={ block } height={ block } patternUnits="userSpaceOnUse">

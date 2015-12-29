@@ -1,4 +1,4 @@
-import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE } from '../constants';
+import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY } from '../constants';
 
 // Action creators
 export function changeMode(mode) {
@@ -25,26 +25,33 @@ export function changeRuleset(name) {
 
 import lodash from 'lodash';
 
+export function mouseMoved(payload) {
+  return {
+    type: CHANGE_ENTRY,
+    payload: payload
+  }
+}
+
 const fn = lodash.debounce((func, idx) => {
   console.log(func(), idx);
 }, 500);
 // TODO Duration and snap
 // [{type, duration}, ...]
-export function mouseMoved(func, idx) {
-  return (dispatch, getState) => {
-    fn(func, idx);
-  }
-  //return (dispatch, getState) => {
-    //const { panel } = getState();
-    //if (panel.get('mode') == MODE.ADD) {
-      ////dispatch(addEntry())
-      //dispatch({
-        //type: ADD_ENTRY,
-        //payload: data
-      //});
-    //}
-  //};
-}
+//export function mouseMoved(func, idx) {
+//  return (dispatch, getState) => {
+//    fn(func, idx);
+//  }
+//  //return (dispatch, getState) => {
+//    //const { panel } = getState();
+//    //if (panel.get('mode') == MODE.ADD) {
+//      ////dispatch(addEntry())
+//      //dispatch({
+//        //type: ADD_ENTRY,
+//        //payload: data
+//      //});
+//    //}
+//  //};
+//}
 
 // export function handleKeyDown({ keyCode }) {
 //   return (dispatch, getState) => {
