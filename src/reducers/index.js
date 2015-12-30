@@ -24,7 +24,9 @@ function rulesetName(state=rulesets.get().getName(), action) {
 }
 
 const initialEntries = [
-  {type: 1, duration: moment.duration(3, 'day').add(1, 'hour')}
+  {type: 1, duration: moment.duration(1, 'day').add(1, 'hour')},
+  {type: 2, duration: moment.duration(1, 'day').add(2, 'hour')},
+  {type: 0, duration: moment.duration().add(2, 'hour')}
 ];
 
 function entries(state=initialEntries, action) {

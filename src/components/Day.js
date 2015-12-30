@@ -38,6 +38,10 @@ export default class Day extends Component {
 
   // Dealing with mouse moving, especially in ADD mode
   handleMouseMove({e, position}) {
+    const { actions, actions: { mouseMoved }, idx } = this.props;
+    console.log(e, position)
+    // mouseMoved to certain position
+    //mouseMoved()
   }
 
   handleClick({e, position}) {
@@ -51,8 +55,8 @@ export default class Day extends Component {
   }
 
   // For the right-side column, calculate the sum time
+  // [{type: 0, duration: moment.duration}, ...] => [moment.duration, ...]
   getSumTime(seq) {
-    //[{type: 0, duration: moment.duration}, ...]
     return seq.reduce(
       (prev, {type, duration}) => (prev[type].add(duration), prev),
       Array.from(Array(Graph.V), moment.duration)
@@ -103,7 +107,7 @@ export default class Day extends Component {
             : null
           }
         </div>
-        {/* Right part: accumulated timer */}
+        {/* Right part: sum time */}
         <div style={{svgHeight, paddingBottom: block, ...style.side}}>
           {
             this.getSumTime(seq).map((x, i) => <div key={i} style={style.sideContent}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)

@@ -8,7 +8,8 @@ import { MODE } from '../constants/Panel';
 export default class DayList extends Component {
   static defaultProps = {
     entries: [
-      {type: 0, duration: moment.duration(3, 'day').add(2, 'hour').add(30, 'minute')}
+      {type: 0, duration: moment.duration(3, 'day').add(2, 'hour').add(30, 'minute')},
+      {type: 1, duration: moment.duration(1, 'day').add(2, 'hour')}
     ],
     editingEntries: [
     ]
@@ -67,9 +68,9 @@ export default class DayList extends Component {
 
     return <div>
       {
-        days.map((dayEntries, i) => {
+        days.map((seq, i) => {
           return <Day
-            entries={dayEntries}
+            seq={seq}
             editingEntries={splittedEditingEntries[i]}
             key={i}
             idx={i}

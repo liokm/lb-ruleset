@@ -79,10 +79,14 @@ export default class Graph extends Component {
     const { block, width } = this.getSize();
     const day = moment.duration(1, 'day');
     seq.forEach(({ type, duration }, idx) => {
+      if (!duration) {
+        return;
+      }
       // Vertically move to target line, except the first move
       if (idx) {
         ret.push('V');
       }
+      console.log(duration, width, day, duration * width / day);
       ret.push(
         // type is index-based already
         (type + 0.5) * block,
@@ -112,7 +116,7 @@ export default class Graph extends Component {
           <rect width="100%" height="50%" fill="url(#grid)" transform={`translate(0, ${height}) scale(1, -1)`} />
           {
             // draw whatever we got
-            seq
+            seq.length > 0
             ? <path strokeDasharray="3,3" d={this.getPath(seq)} stroke="blue" strokeWidth="1" fill="none" />
             : null
           }
