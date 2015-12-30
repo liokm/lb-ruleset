@@ -1,11 +1,15 @@
 import React, { Component, PropTypes } from 'react';
-import Graph, { H } from './Graph';
+import debug from 'debug';
 import moment from 'moment';
-import { MODE } from '../constants/Panel';
+import Graph from './Graph';
 
 // Component that lifts the heavy of calculating block size of grid
 //  and drawing day view
-export default class DayView extends Component {
+export default class Day extends Component {
+  static propTypes = {
+    // TODO browser
+  }
+
   handleResize() {
     this.setState({width: this.refs.wrapper.getBoundingClientRect().width});
   }
@@ -26,26 +30,22 @@ export default class DayView extends Component {
   handleMouseMove(e) {
     // When mouse moving, c
     const { mode } = this.props;
-    if (mode == MODE.ADD) {
-
-
-    }
 
   }
 
   // Calculate the size of grid block
-  // 1. In order to prevent anti-alias bluring, always draw on integer grid
-  // 2. width/height are passed into Graph without calculating them inside
+  // In order to prevent anti-alias bluring, always draw on integer grid
   getBlock() {
     const { width = 0 } = this.state || {};
-    return Math.max(0, Math.floor((width - 1) / (H + 1)));
+    return Math.max(0, Math.floor((width - 1) / (Graph.H + 1)));
   }
 
   // For the right-side column, calculate the sum time
   getAccumulatedTime(seq) {
+    //[{type: 0, duration: moment.duration}, ...]
     return seq.reduce(
       (prev, {type, duration}) => (prev[type].add(duration), prev),
-      Array.from(Array(4), () => moment.duration())
+      Array.from(Array(Graph.V), moment.duration)
     );
   }
 
@@ -72,11 +72,13 @@ export default class DayView extends Component {
     const block = this.getBlock();
     // TODO Block is calculated for full column size, thus the fontSize here
     //  can much possibly reduce the width of left and right columns.
-    const fontSize = block ? {fontSize: `${block * .9}px`} : {};
+    //const fontSize = block ? {fontSize: `${block * .9}px`} : {};
+    const fontSize = {};
+    const height = block * (Graph.V + 0) + 1;
     return (
       <div style={{display: 'flex', marginBottom: '1em', ...fontSize}}>
         {/* Left part: vLabels */}
-        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block, textAlign: 'center'}}>
+        <div style={{height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block, textAlign: 'center'}}>
           {vLabels.map((x, i) => <div key={i} style={{flexGrow: 1, flexBasis: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x}</div> )}
         </div>
         {/* Middle part: Graph */}
@@ -88,10 +90,9 @@ export default class DayView extends Component {
           }
         </div>
         {/* Right part: accumulated timer */}
-        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
+        <div style={{height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
           {
-            // console.log('inside', seq),
-            this.getAccumulatedTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
+            this.getAccumulatedTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexBasis: 0, flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
           }
         </div>
       </div>

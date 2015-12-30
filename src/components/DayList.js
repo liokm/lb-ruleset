@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import DayView from '../components/DayView';
+import Day from '../components/Day';
 // import * as PanelActions from '../actions/PanelActions';
 import { MODE } from '../constants/Panel';
 
@@ -68,7 +69,7 @@ export default class DayList extends Component {
     return <div>
       {
         days.map((dayEntries, i) => {
-          return <DayView
+          return <Day
             entries={dayEntries}
             editingEntries={splittedEditingEntries[i]}
             key={i}

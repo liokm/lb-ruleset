@@ -1,36 +1,38 @@
 import React, { Component, PropTypes } from 'react';
+import debug from 'debug';
 import moment from 'moment';
-import lodash from 'lodash';
+import throttle from 'lodash.throttle';
 
-export const H = 24;
-export const V = 4;
-// Graph
 export default class Graph extends Component {
+  static H = 24
+  static V = 4
   static propTypes = {
     block: PropTypes.number.isRequired,
     // TODO hLabels
   }
 
   static defaultProps = {
-    hLabels: Array.from(Array(H + 1), (x, k) => k),
-    seq: []
+    hLabels: Array.from(Array(Graph.H + 1), (x, k) => k),
+    seq: [],
+    onMouseMove: debug('app:Graph:onMouseMove'),
+    onClick: debug('app:Graph:onClick')
   }
 
   constructor() {
     super();
-    this.handleMouseMove = lodash.throttle(this.handleMouseMove, 200);
+    this.handleMouseMove = throttle(this.handleMouseMove, 200);
   }
 
   getSize() {
     const { block } = this.props;
     return {
       block,
-      width: block * H + 1,
-      height: block * V + 1
+      width: block * Graph.H + 1,
+      height: block * Graph.V + 1
     };
   }
 
-  getPos(e) {
+  getPosition(e) {
     const { block, width, height } = this.getSize();
     const { left, top } = e.currentTarget.getBoundingClientRect();
     const x = Math.floor(e.clientX - left);
@@ -47,24 +49,30 @@ export default class Graph extends Component {
     };
   }
 
+  // We don't want a {...e} dump
+  dumpEvent({currentTarget, clientX, clientY, ctrlKey, altKey, shiftKey}) {
+    return { currentTarget, clientX, clientY, ctrlKey, altKey, shiftKey };
+  }
+
   handleMouseMove(e) {
-  // throttle the func here
-    //e.persist();
-    const { actions, idx } = this.props;
-    const { xRatio, v } = this.getPos(e);
-    actions.mouseMoved({type: v, duration: moment.duration(idx, 'day').add(xRatio * 24, 'hour')});
-    //actions.mouseMoved( () => this.getPos(e), idx );
-    //
-    // mouseMoved(e, )
-    // TODO debounce here or in panelAction
-    // mouseMoved({...this.getSize(), ...this.getPos(e)});
-    // Ctrl/Alt key for snap
+    this.props.onMouseMove({
+      e,
+      position: this.getPosition(e)
+    });
+    //duration: moment.duration(idx, 'day').add(pos.xRatio * 24, 'hour'),
   }
 
   handleClick(e) {
-    console.log(this.getPos(e));
+    // If we use the original e, we need to persist it
+    //e.persist();
+    this.props.onClick({
+      e,
+      position: this.getPosition(e)
+    });
   }
 
+  // Data => {}
+  // Move this part to the outside
   // Get d for <path d={d}> for an entry seq
   getPath(seq) {
     const ret = ['M', 0];
@@ -86,14 +94,14 @@ export default class Graph extends Component {
   }
 
   render() {
-    const { hLabels, panel, seq } = this.props;
+    const { hLabels, seq } = this.props;
     const { block, width, height } = this.getSize();
 
     return (
       <svg width={width + block} height={height + block}>
         <svg x={block / 2} width={width} height={height}
-          onClick={ e => this.handleClick(e) }
-          onMouseMove={ ({clientX, clientY, currentTarget}) => this.handleMouseMove({clientX, clientY, currentTarget}) }
+          onClick={ e => this.handleClick(this.dumpEvent(e)) }
+          onMouseMove={ e => this.handleMouseMove(this.dumpEvent(e)) }
           >
           <defs>
             <pattern id="grid" width={ block } height={ block } patternUnits="userSpaceOnUse">
@@ -105,7 +113,7 @@ export default class Graph extends Component {
           {
             // draw whatever we got
             seq
-            ? <path d={this.getPath(seq)} stroke="blue" strokeWidth="1" fill="none" />
+            ? <path strokeDasharray="3,3" d={this.getPath(seq)} stroke="blue" strokeWidth="1" fill="none" />
             : null
           }
         </svg>
