@@ -7,7 +7,17 @@ import Graph from './Graph';
 //  and drawing day view
 export default class Day extends Component {
   static propTypes = {
-    // TODO browser
+    /*
+     * seq: segmented daily entries sequence, [{type, duration, style}]
+     * editing: segmented editing daily entries sequence, [{type, duration, style}]
+     * violations: daily violations, [TODO]
+     */
+  }
+
+  static defaultProps = {
+    seq: [],
+    editing: [],
+    violations: []
   }
 
   handleResize() {
@@ -66,37 +76,55 @@ export default class Day extends Component {
     return ret;
   }
 
-  // TODO Simply pass the svg path string to <Graph> for a quick performance boost?
   render() {
-    const { vLabels, panelActions, panel, entries, idx, actions } = this.props;
+    const { vLabels, seq, editing, violations, idx, actions } = this.props;
     const block = this.getBlock();
-    // TODO Block is calculated for full column size, thus the fontSize here
-    //  can much possibly reduce the width of left and right columns.
-    //
+    // TODO Put Graph.getSize in this component?
+    const svgHeight = block * Graph.V + 1;
+    // XXX We can't simply change the whole fontSize here, the left/right columns will shrink,
+    // and the layout is not that stable (need more iterations to be finalized)
     //const fontSize = block ? {fontSize: `${block * .9}px`} : {};
     const fontSize = {};
-    const height = block * (Graph.V + 0) + 1;
     return (
-      <div style={{display: 'flex', marginBottom: '1em', ...fontSize}}>
+      <div style={{display: 'flex', marginBottom: '1em', textAlign: 'center', ...fontSize}}>
         {/* Left part: vLabels */}
-        <div style={{height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block, textAlign: 'center'}}>
-          {vLabels.map((x, i) => <div key={i} style={{flexGrow: 1, flexBasis: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>{x}</div> )}
+        <div style={{svgHeight, paddingBottom: block, ...style.side}}>
+          {vLabels.map((x, i) => <div key={i} style={style.sideContent}>{x}</div> )}
         </div>
         {/* Middle part: Graph */}
-        <div style={{flexGrow: 1, overflow: 'hidden', textAlign: 'center'}} ref="wrapper">
+        <div style={{flexGrow: 1, overflow: 'hidden'}} ref="wrapper">
           {
+            // TODO Simply pass the svg path string to <Graph> for a quick performance boost?
             block
-            ? <Graph block={block} seq={entries} idx={idx} actions={actions} {...panelActions}/>
+            ? <Graph block={block} seq={seq} editing={editing} violations={violations}
+                onClick={this.handleClick}
+                onMouseMove={this.handleMouseMove}
+              />
             : null
           }
         </div>
         {/* Right part: accumulated timer */}
-        <div style={{height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
+        <div style={{svgHeight, paddingBottom: block, ...style.side}}>
           {
-            this.getSumTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexBasis: 0, flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
+            this.getSumTime(seq).map((x, i) => <div key={i} style={style.sideContent}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
           }
         </div>
       </div>
     );
   }
 }
+
+const style = {
+  side: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  sideContent: {
+    display: 'flex',
+    flexBasis: 0,
+    flexDirection: 'column',
+    flexGrow: 1,
+    justifyContent: 'space-around'
+  }
+};
