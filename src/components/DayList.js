@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import DayView from '../components/DayView';
 import Day from '../components/Day';
 // import * as PanelActions from '../actions/PanelActions';
 import { MODE } from '../constants/Panel';

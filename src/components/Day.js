@@ -41,7 +41,7 @@ export default class Day extends Component {
   }
 
   // For the right-side column, calculate the sum time
-  getAccumulatedTime(seq) {
+  getSumTime(seq) {
     //[{type: 0, duration: moment.duration}, ...]
     return seq.reduce(
       (prev, {type, duration}) => (prev[type].add(duration), prev),
@@ -72,6 +72,7 @@ export default class Day extends Component {
     const block = this.getBlock();
     // TODO Block is calculated for full column size, thus the fontSize here
     //  can much possibly reduce the width of left and right columns.
+    //
     //const fontSize = block ? {fontSize: `${block * .9}px`} : {};
     const fontSize = {};
     const height = block * (Graph.V + 0) + 1;
@@ -92,7 +93,7 @@ export default class Day extends Component {
         {/* Right part: accumulated timer */}
         <div style={{height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: block}}>
           {
-            this.getAccumulatedTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexBasis: 0, flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
+            this.getSumTime(entries).map((x, i) => <div key={i} style={{flexGrow: 1, display: 'flex', flexBasis: 0, flexDirection: 'column', justifyContent: 'space-around'}}>{x.format('s hh:mm:ss').split(' ')[1]}</div>)
           }
         </div>
       </div>
