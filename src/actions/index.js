@@ -1,4 +1,4 @@
-import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY } from '../constants';
+import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY, UPDATE_MOUSE_POSITION } from '../constants';
 
 // Action creators
 export function changeMode(mode) {
@@ -23,18 +23,13 @@ export function changeRuleset(name) {
   }
 }
 
-import lodash from 'lodash';
-
-export function mouseMoved(payload) {
+export function mouseMoved(data) {
   return {
-    type: CHANGE_ENTRY,
-    payload: payload
+    type: UPDATE_MOUSE_POSITION,
+    data
   }
 }
 
-const fn = lodash.debounce((func, idx) => {
-  console.log(func(), idx);
-}, 500);
 // TODO Duration and snap
 // [{type, duration}, ...]
 //export function mouseMoved(func, idx) {

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { combineReducers } from 'redux';
 import { responsiveStateReducer } from 'redux-responsive';
-import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY } from '../constants';
+import { CHANGE_MODE, ADD_ENTRY, CHANGE_RULESET, MODE, CHANGE_ENTRY, UPDATE_MOUSE_POSITION } from '../constants';
 import rulesets from '../rulesets';
 
 
@@ -38,10 +38,20 @@ function entries(state=initialEntries, action) {
   }
 }
 
+function mouse(state={}, action) {
+  switch (action.type) {
+    case UPDATE_MOUSE_POSITION:
+      return action.data;
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   mode,
   entries,
   rulesetName,
+  mouse,
   browser: responsiveStateReducer
 });
 
