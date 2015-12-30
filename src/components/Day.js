@@ -37,10 +37,10 @@ export default class Day extends Component {
   }
 
   // Dealing with mouse moving, especially in ADD mode
-  handleMouseMove(e) {
-    // When mouse moving, c
-    const { mode } = this.props;
+  handleMouseMove({e, position}) {
+  }
 
+  handleClick({e, position}) {
   }
 
   // Calculate the size of grid block
@@ -97,8 +97,8 @@ export default class Day extends Component {
             // TODO Simply pass the svg path string to <Graph> for a quick performance boost?
             block
             ? <Graph block={block} seq={seq} editing={editing} violations={violations}
-                onClick={this.handleClick}
-                onMouseMove={this.handleMouseMove}
+                onClick={ this.handleClick.bind(this) }
+                onMouseMove={ this.handleMouseMove.bind(this) }
               />
             : null
           }
