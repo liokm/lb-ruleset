@@ -7,40 +7,65 @@ import { MODE } from '../constants/Panel';
 // Split seq and show DayView
 export default class DayList extends Component {
   static defaultProps = {
-    entries: [
-      {type: 0, duration: moment.duration(3, 'day').add(2, 'hour').add(30, 'minute')},
-      {type: 1, duration: moment.duration(1, 'day').add(2, 'hour')}
-    ],
-    editingEntries: [
-    ]
+    editingEntries: []
   }
 
   // Split the seq by day (of their duration sums)
-  splitByDay(seq) {
+  // [{duration}, ...] => [[{duration}, ...]...]
+  // push to cur and change cur if full, split to two parts, until seq is consumed
+  splitByDay([...seq]) {
     const day = moment.duration(1, 'day');
-    //
     let cur = [];
     const ret = [cur];
-    // sum of the cur entry
-    // const duration = moment.duration();
-    for (let {type, duration: d} of seq) {
-      const curDuration = cur.reduce((x, {duration}) => x.add(duration) , moment.duration());
-      if (curDuration + d > day) {
-        const delta = day - curDuration;
-        cur.push({type, duration: moment.duration(delta)});
-        const remain = d - delta;
-        ret.push(...Array.from(Array(Math.floor(remain / day)), () => [{type, duration: moment.duration(1, 'day')}]));
+    while (seq.length) {
+      const item = seq.shift();
+      const sum = cur.reduce((p, { duration: d }) => p.add(d), item.duration);
+      if (sum < day) {
+        cur.push({...item});
+      } else {
+        cur.push({...item, duration: moment.duration(day - (sum - item.duration))});
+        if (sum - day) {
+          seq.unshift({...item, duration: moment.duration(sum - day)});
+        }
         cur = [];
         ret.push(cur);
-        if (remain % day) {
-          cur.push({type, duration: moment.duration(remain % day)});
-        }
-      } else {
-        cur.push({type, d});
       }
+    }
+    if (cur.length == 0) {
+      ret.pop();
     }
     return ret;
   }
+
+  //splitByDay2(seq) {
+  //  const day = moment.duration(1, 'day');
+  //  let cur = [];
+  //  const ret = [cur];
+  //  for (let item of seq) {
+  //    const curDuration = cur.reduce((p, {duration: d}) => p.add(d) , moment.duration());
+  //    if (curDuration < day == 0) {
+  //      cur = [{...item}]
+  //      ret.push(cur);
+  //    } else {
+
+  //    }
+  //    // curDuration
+  //    if (curDuration + d > day) {
+  //      const delta = day - curDuration;
+  //      cur.push({type, duration: moment.duration(delta)});
+  //      const remain = d - delta;
+  //      ret.push(...Array.from(Array(Math.floor(remain / day)), () => [{type, duration: moment.duration(1, 'day')}]));
+  //      cur = [];
+  //      ret.push(cur);
+  //      if (remain % day) {
+  //        cur.push({type, duration: moment.duration(remain % day)});
+  //      }
+  //    } else {
+  //      cur.push({...item});
+  //    }
+  //  }
+  //  return ret;
+  //}
 
   render() {
     // Use global entries and editingEntries

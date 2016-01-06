@@ -53,14 +53,60 @@ class App extends Component {
   }
 }
 
+// Derived data
+function processHighlight(highlight) {
+
+}
+
+// TODO We may want this heavy-lift logic to be somewhere else
+// Transform raw entries into internal entries
+// {type, duration} => {type: index-based type, duration, start, end}
+function processEntries(rulesetName, entries, { duration: mouse }) {
+  const ruleset = rulesets.get(rulesetName);
+  // remove empty entries
+  const ret = [];
+  const start = moment.duration();
+  for (let {type, duration} of entries) {
+    duration = moment.duration(duration);
+    type = ruleset.types.indexOf(type);
+    // Ignore entry with 0 duration
+    //if (duration == 0) {
+    //  continue;
+    //}
+    // Ignore entry with invalid type
+    if (type == -1) {
+      continue;
+    }
+    const data = {
+      type,
+      duration,
+      start: moment.duration(start),
+      end: moment.duration(start.add(duration))
+    };
+    if (data.start <= mouse && mouse <= data.end) {
+      data.highlight = true;
+    }
+    ret.push(data);
+    //if (mouse.)
+  }
+  return ret;
+}
+
+// TODO
+// Apply violation ruleset on entries
+function violations(entries) { }
+
 function select(state) {
   return {
     //counter: state.counter,
     browser: state.browser,
     // panel: state.panel,
     mode: state.mode,
-    entries: state.entries,
-    rulesetName: state.rulesetName
+    //rawEntries: state.entries,
+    rulesetName: state.rulesetName,
+    highlight: state.highlight,
+    // mouse => {type, duration}
+    entries: processEntries(state.rulesetName, state.entries, state.mouse)
     //editingEntries: state.editingEntries
     // TODO second linke state
   };

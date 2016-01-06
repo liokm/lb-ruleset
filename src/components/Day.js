@@ -39,7 +39,11 @@ export default class Day extends Component {
   // Dealing with mouse moving, especially in ADD mode
   handleMouseMove({e, position}) {
     const { actions, actions: { mouseMoved }, idx } = this.props;
-    mouseMoved({e, position});
+    mouseMoved({
+      idx, e, position,
+      duration: moment.duration(idx, 'day').add(24 * position.xRatio, 'hour')
+    });
+    //console.log(position.h, position.v)
   }
 
   handleClick({e, position}) {

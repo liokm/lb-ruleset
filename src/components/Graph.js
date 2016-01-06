@@ -35,8 +35,9 @@ export default class Graph extends Component {
   getPosition(e) {
     const { block, width, height } = this.getSize();
     const { left, top } = e.currentTarget.getBoundingClientRect();
-    const x = Math.floor(e.clientX - left);
-    const y = Math.floor(e.clientY - top);
+    const x = Math.floor(e.clientX - left) + 1;
+    // TODO Better GUESS on the value normalized
+    const y = Math.max(0, Math.floor(e.clientY - top) - 2);
     return {
       x,
       y,
@@ -49,7 +50,7 @@ export default class Graph extends Component {
     };
   }
 
-  // We don't want a {...e} dump
+  // We don't want a {...e} dump or e.persist()
   dumpEvent({currentTarget, clientX, clientY, ctrlKey, altKey, shiftKey}) {
     return { currentTarget, clientX, clientY, ctrlKey, altKey, shiftKey };
   }
@@ -63,8 +64,7 @@ export default class Graph extends Component {
   }
 
   handleClick(e) {
-    // If we use the original e, we need to persist it
-    //e.persist();
+    // If we use the original e, we could persist it: e.persist()
     this.props.onClick({
       e,
       position: this.getPosition(e)
@@ -86,7 +86,7 @@ export default class Graph extends Component {
       if (idx) {
         ret.push('V');
       }
-      console.log(duration, width, day, duration * width / day);
+      //console.log(duration, width, day, duration * width / day);
       ret.push(
         // type is index-based already
         (type + 0.5) * block,
