@@ -55,14 +55,50 @@ class App extends Component {
 
 // Derived data
 function processHighlight(highlight) {
-
 }
 
-// TODO We may want this heavy-lift logic to be somewhere else
-// Transform raw entries into internal entries
-// {type, duration} => {type: index-based type, duration, start, end}
-function processEntries(rulesetName, entries, { duration: mouse }) {
+/*
+ *
+ TODO We may want this heavy-lift logic to be somewhere else
+ Transform raw entries into internal entries
+ {type, duration} => {type: index-based type, duration, start}
+ mark highlight
+ add editing entry: depends on mouse position, mode and addStartAt
+ when in edit/add mode: the editing one is highlighted
+ in normal mode: the hovered one is highlighted
+ click in add mode: add addStartAt or simply append
+  if addStartAt is set, create an entry from addStartAt to the mouse position
+    require: mouse position >= addStartAt
+    whether we overlap or extend the entry or overlap at most to current position
+    or add key modifiers:
+      - no key: overlap / insert (extend)
+      - ctrl: snap to interal timepoint
+      - alt: snap to integral duration
+      - shift: snap to near by position
+  else set addStartAt if inside some entry (not the last, aka, there is no larger entry than the pos)
+    set addStartAt
+    whenever mouse moving, in processEntries, add an entry to entries (from mouse start to possible position, at least 0 duration)
+    (use key modifier to determine the behaviour of add)
+  else create an entry from the last position
+    const last = entries.length? entries[entries.length - 1].end : moment.duration()
+ show violations
+ Update raw entries: cleanup 0 duration and invalid type at the first place
+*/
+import { MODE } from '../constants';
+function addEditingEntry(entries, mode, addStartAt) {
+  // Only add entries in ADD mode
+  if (mode != MODE.ADD) {
+    return entries;
+  }
+  // Add an entry to entries here directly (because it's temporal and is not stored)
+  // By clicking to confirm insertion, modify entries in redux way
+  //insertEntry(entry)
+}
+
+function processEntries(rulesetName, entries, { duration: mouse }, mode) {
+  //if (mode == MODE.)
   const ruleset = rulesets.get(rulesetName);
+  // Here we pro
   // remove empty entries
   const ret = [];
   const start = moment.duration();
